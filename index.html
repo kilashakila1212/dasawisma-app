@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pencatatan Data Dasawisma PKK</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pkk: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        pkkblue: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 12mm 10mm 12mm 10mm;
+            }
+            body {
+                background-color: white !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .printable-area {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .printable-area table {
+                font-size: 10px !important;
+            }
+            .printable-area th, .printable-area td {
+                padding: 4px 6px !important;
+                border-color: #334155 !important;
+            }
+            .page-break-inside-avoid {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-gradient-to-r from-emerald-700 via-teal-700 to-pkkblue-700 text-white shadow-md sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
+                        <i class="fa-solid fa-people-roof text-2xl text-emerald-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight sm:text-xl">Dasawisma Digital</h1>
+                        <p class="text-xs text-emerald-100 font-light hidden sm:block">Sistem Pencatatan & Rekapitulasi Data PKK</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-1 font-medium text-sm">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 bg-white/20 text-white font-semibold">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('warga')" id="nav-warga" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Data Keluarga</span>
+                    </button>
+                    <button onclick="switchTab('kategori')" id="nav-kategori" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>Kategori Warga</span>
+                    </button>
+                    <button onclick="switchTab('kas')" id="nav-kas" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Kas & Kegiatan</span>
+                    </button>
+                    <button onclick="switchTab('rekap')" id="nav-rekap" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <span>Rekap & Laporan</span>
+                    </button>
+                </nav>
+
+                <!-- Quick Action Button -->
+                <div class="hidden sm:flex items-center space-x-2">
+                    <button onclick="openFormModal()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-3.5 py-2 rounded-lg text-sm shadow-sm transition-all flex items-center space-x-2 border border-emerald-400">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>+ Tambah KK</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden flex justify-around border-t border-emerald-600/50 bg-emerald-800/90 backdrop-blur-md px-2 py-1.5 text-[11px]">
+            <button onclick="switchTab('dashboard')" id="mob-dashboard" class="flex flex-col items-center p-1 rounded text-white font-semibold">
+                <i class="fa-solid fa-chart-pie text-sm mb-0.5"></i>
+                <span>Beranda</span>
+            </button>
+            <button onclick="switchTab('warga')" id="mob-warga" class="flex flex-col items-center p-1 rounded text-emerald-200">
+                <i class="fa-solid fa-users text-sm mb-0.5"></i>
+                <span>Keluarga</span>
+            </button>
+            <button onclick="switchTab('kategori')" id="mob-kategori" class="flex flex-col items-center p-1 rounded text-emerald-200">
+                <i class="fa-solid fa-layer-group text-sm mb-0.5"></i>
+                <span>Kategori</span>
+            </button>
+            <button onclick="switchTab('kas')" id="mob-kas" class="flex flex-col items-center p-1 rounded text-emerald-200">
+                <i class="fa-solid fa-wallet text-sm mb-0.5"></i>
+                <span>Kas</span>
+            </button>
+            <button onclick="switchTab('rekap')" id="mob-rekap" class="flex flex-col items-center p-1 rounded text-emerald-200">
+                <i class="fa-solid fa-file-invoice text-sm mb-0.5"></i>
+                <span>Rekap</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- Notification Toast -->
+        <div id="toast" onclick="hideToast()" class="fixed top-20 right-4 z-50 transform transition-all duration-300 translate-x-full opacity-0 pointer-events-none max-w-sm w-full bg-emerald-800 text-white p-3 rounded-xl shadow-xl flex items-center space-x-3 border-l-4 border-emerald-400 cursor-pointer">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-lg text-emerald-400"></i>
+            <div id="toast-message" class="text-xs font-medium flex-1">Data berhasil disimpan!</div>
+            <i onclick="hideToast()" class="fa-solid fa-xmark text-xs opacity-60 hover:opacity-100 p-1"></i>
+        </div>
+
+        <!-- Custom Delete Confirmation Modal -->
+        <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white max-w-md w-full rounded-2xl shadow-2xl p-6 text-center space-y-4 transform transition-all">
+                <div class="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <div>
+                    <h3 id="confirm-modal-title" class="text-base font-bold text-slate-800">Konfirmasi Hapus Data</h3>
+                    <p id="confirm-modal-msg" class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+                <div class="flex justify-center space-x-3 pt-2">
+                    <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all">
+                        Batal
+                    </button>
+                    <button id="confirm-modal-action-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all">
+                        Hapus Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Dashboard Tab ================= -->
+        <section id="tab-dashboard" class="space-y-6">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-15">
+                    <i class="fa-solid fa-house-chimney-window text-9xl"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-emerald-800/60 text-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30">Kelompok Dasawisma Damar Putih</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold mt-2">Selamat Datang, Ibu Kader Dasawisma</h2>
+                    <p class="text-emerald-100 mt-1 text-sm sm:text-base leading-relaxed">
+                        Pantau ringkasan data warga, ibu hamil, balita, remaja, usia produktif, lansia, akseptor KB, serta kas kelompok secara real-time.
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button onclick="openFormModal()" class="bg-white text-emerald-800 font-semibold px-4 py-2 rounded-xl text-sm shadow hover:bg-emerald-50 transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-plus-circle text-emerald-600"></i>
+                            <span>Catat KK Baru</span>
+                        </button>
+                        <button onclick="switchTab('kategori')" class="bg-emerald-700/60 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm backdrop-blur-sm transition-all border border-emerald-400/30 flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Lihat Tab Kategori</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metric Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total KK</p>
+                            <h3 id="dash-total-kk" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <i class="fa-solid fa-house-user text-lg"></i>
+                        </div>
+                    </div>
+                    <p id="dash-total-jiwa" class="text-[11px] text-slate-500 mt-2 truncate">0 Jiwa Terdata</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTabCategory('bumil')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Bumil / Busui</p>
+                            <h3 id="dash-total-bumil" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="p-3 bg-pink-50 text-pink-600 rounded-xl">
+                            <i class="fa-solid fa-person-breastfeeding text-lg"></i>
+                        </div>
+                    </div>
+                    <p id="dash-detail-bumil" class="text-[11px] text-slate-500 mt-2 truncate">Hamil: 0 | Menyusui: 0</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTabCategory('balita')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Balita</p>
+                            <h3 id="dash-total-balita" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                            <i class="fa-solid fa-baby text-lg"></i>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2 truncate">Anak Usia 0-5 Thn</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTabCategory('produktif')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Produktif / Remaja</p>
+                            <h3 id="dash-total-produktif" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <i class="fa-solid fa-user-gear text-lg"></i>
+                        </div>
+                    </div>
+                    <p id="dash-detail-produktif" class="text-[11px] text-slate-500 mt-2 truncate">Remaja (6-17): 0 | Produktif (18-59): 0</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTabCategory('lansia')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Lansia</p>
+                            <h3 id="dash-total-lansia" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                            <i class="fa-solid fa-person-cane text-lg"></i>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2 truncate">Usia &gt; 60 Tahun</p>
+                </div>
+            </div>
+
+            <!-- Health & Program Summary Indicators -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-pump-soap text-emerald-600"></i>
+                            <span>Sanitasi & Lingkungan Sehat</span>
+                        </h3>
+                        <span class="text-xs text-slate-400">Persentase Rumah Sehat</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-600">Jamban Sehat</span>
+                                <span id="stat-jamban-txt" class="text-emerald-700">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-jamban-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-600">Tempat Pembuangan Sampah</span>
+                                <span id="stat-sampah-txt" class="text-teal-700">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-sampah-bar" class="bg-teal-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-600">Saluran Pembuangan Air Limbah (SPAL)</span>
+                                <span id="stat-spal-txt" class="text-blue-700">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-spal-bar" class="bg-pkkblue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-600">Pekarangan (TOGA / Ketahanan Pangan)</span>
+                                <span id="stat-toga-txt" class="text-amber-700">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-toga-bar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                                <i class="fa-solid fa-wallet text-teal-600"></i>
+                                <span>Ringkasan Kas Dasawisma</span>
+                            </h3>
+                            <button onclick="switchTab('kas')" class="text-xs text-emerald-600 font-semibold hover:underline">
+                                Lihat Detail &rarr;
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-100">
+                                <span class="text-xs text-emerald-700 font-medium block">Total Pemasukan</span>
+                                <span id="dash-kas-masuk" class="text-lg font-bold text-emerald-800 mt-1 block">Rp 0</span>
+                            </div>
+                            <div class="bg-red-50/70 p-3.5 rounded-xl border border-red-100">
+                                <span class="text-xs text-red-700 font-medium block">Total Pengeluaran</span>
+                                <span id="dash-kas-keluar" class="text-lg font-bold text-red-800 mt-1 block">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/70 flex justify-between items-center">
+                            <div>
+                                <span class="text-xs text-slate-500 font-medium">Saldo Kas Saat Ini</span>
+                                <h4 id="dash-kas-saldo" class="text-xl font-extrabold text-slate-800 mt-0.5">Rp 0</h4>
+                            </div>
+                            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Lokal Aktif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Warga Tab ================= -->
+        <section id="tab-warga" class="space-y-4 hidden">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="renderWargaTable()" placeholder="Cari No. KK, Nama KK, NIK, atau No. Rumah..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="openFormModal()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Data KK</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="p-3.5 pl-4">No. Rumah / KK</th>
+                                <th class="p-3.5">Kepala Keluarga</th>
+                                <th class="p-3.5 text-center">Anggota Keluarga</th>
+                                <th class="p-3.5">Kategori Khusus</th>
+                                <th class="p-3.5">Sanitasi & Pekarangan</th>
+                                <th class="p-3.5 text-center pr-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warga-table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="warga-empty" class="p-8 text-center hidden">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-users-slash text-2xl"></i>
+                    </div>
+                    <p class="font-semibold text-slate-700">Belum ada data keluarga</p>
+                    <p class="text-xs text-slate-400 mt-1">Klik tombol 'Tambah Data KK' untuk mulai memasukkan data warga Dasawisma.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Category Tab ================= -->
+        <section id="tab-kategori" class="space-y-6 hidden">
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-emerald-600"></i>
+                            <span>Pengelompokan Warga Berdasarkan Kategori</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Pilih kategori di bawah untuk melihat rincian anggota keluarga terdata.</p>
+                    </div>
+                    <div class="no-print flex flex-wrap gap-2">
+                        <button onclick="exportCategoryToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs shadow-sm flex items-center space-x-1.5 transition-all">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Unduh Excel Kategori Ini</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex overflow-x-auto border-b border-slate-200 bg-slate-100/80 p-1.5 rounded-xl space-x-1 font-bold text-xs uppercase tracking-wide">
+                    <button onclick="switchCategorySubTab('bumil')" id="cat-tab-bumil" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all bg-white text-emerald-700 shadow-sm border-b-2 border-emerald-600 flex items-center space-x-2">
+                        <i class="fa-solid fa-person-breastfeeding"></i>
+                        <span>IBU HAMIL , MENYUSUI</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('balita')" id="cat-tab-balita" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-baby"></i>
+                        <span>BALITA</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('remaja')" id="cat-tab-remaja" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>REMAJA</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('produktif')" id="cat-tab-produktif" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <span>PRODUKTIF</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('lansia')" id="cat-tab-lansia" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-person-cane"></i>
+                        <span>LANSIA</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('pus_wus')" id="cat-tab-pus_wus" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-venus-mars"></i>
+                        <span>PUS & WUS</span>
+                    </button>
+                    <button onclick="switchCategorySubTab('kb')" id="cat-tab-kb" class="px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2">
+                        <i class="fa-solid fa-pills"></i>
+                        <span>PESERTA KB</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-4">
+                <div id="cat-info-banner" class="p-4 rounded-xl bg-pink-50 border border-pink-200 flex items-center justify-between">
+                    <div>
+                        <h4 id="cat-info-title" class="font-bold text-pink-900 text-sm">Kategori: Ibu Hamil & Menyusui</h4>
+                        <p id="cat-info-desc" class="text-xs text-pink-700 mt-0.5">Menampilkan rincian warga/anggota keluarga yang termasuk Ibu Hamil atau Ibu Menyusui.</p>
+                    </div>
+                    <div id="cat-info-badge" class="bg-pink-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm">
+                        Total: 0 Jiwa
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-500 uppercase">
+                                <th class="p-3 pl-4">No. Rumah / No. KK</th>
+                                <th class="p-3">NIK & Nama Anggota</th>
+                                <th class="p-3 text-center">L/P</th>
+                                <th class="p-3 text-center">Tgl Lahir / Usia</th>
+                                <th class="p-3">Status dlm KK</th>
+                                <th class="p-3">Detail Kategori / PUS WUS / KB</th>
+                                <th class="p-3 text-center pr-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="category-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="category-empty" class="p-8 text-center hidden">
+                    <i class="fa-solid fa-folder-open text-3xl text-slate-300 mb-2"></i>
+                    <p class="font-semibold text-slate-600 text-sm">Tidak ditemukan warga pada kategori ini</p>
+                    <p class="text-xs text-slate-400 mt-1">Data akan muncul secara otomatis saat pendataan KK & Anggota Keluarga diisi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Kas Tab ================= -->
+        <section id="tab-kas" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-5 rounded-2xl text-white shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-emerald-100 font-medium block uppercase tracking-wider">Total Saldo Kas Saat Ini</span>
+                        <h3 id="kas-tab-saldo" class="text-2xl font-extrabold mt-1">Rp 0</h3>
+                    </div>
+                    <div class="p-3.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                        <i class="fa-solid fa-wallet text-2xl text-white"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium block uppercase tracking-wider">Total Pemasukan</span>
+                        <h3 id="kas-tab-masuk" class="text-xl font-bold text-emerald-700 mt-1">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <i class="fa-solid fa-arrow-down-left text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-500 font-medium block uppercase tracking-wider">Total Pengeluaran</span>
+                        <h3 id="kas-tab-keluar" class="text-xl font-bold text-red-700 mt-1">Rp 0</h3>
+                    </div>
+                    <div class="p-3 bg-red-50 text-red-600 rounded-xl">
+                        <i class="fa-solid fa-arrow-up-right text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="space-y-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <h3 id="kas-form-title" class="font-bold text-slate-800 mb-4 flex items-center space-x-2 text-base">
+                            <i class="fa-solid fa-pen-to-square text-emerald-600"></i>
+                            <span>Catat Kas Dasawisma</span>
+                        </h3>
+                        <form id="kas-form" onsubmit="handleSaveKas(event)" class="space-y-3">
+                            <input type="hidden" id="kas-id">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                                <input type="date" id="kas-tgl" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Transaksi</label>
+                                <select id="kas-jenis" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                                    <option value="masuk">Pemasukan (Iuran/Jinjit/Donasi)</option>
+                                    <option value="keluar">Pengeluaran (Konsumsi/Sosial/Alat)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp)</label>
+                                <input type="number" id="kas-jumlah" required min="1" placeholder="Contoh: 50000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Keperluan</label>
+                                <input type="text" id="kas-ket" required placeholder="Misal: Iuran Kas Arisan Ibu Nita" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            </div>
+                            <div class="flex space-x-2 pt-1">
+                                <button type="button" id="btn-cancel-kas-edit" onclick="resetKasForm()" class="hidden flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition-all">
+                                    Batal
+                                </button>
+                                <button type="submit" id="btn-submit-kas" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span id="kas-btn-text">Simpan Transaksi</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                                <i class="fa-solid fa-receipt text-emerald-600"></i>
+                                <span>Riwayat Transaksi Kas</span>
+                            </h3>
+                            <span class="text-xs text-slate-500">Catatan Keuangan Kelompok</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-500 uppercase">
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Keterangan</th>
+                                        <th class="p-3 text-center">Jenis</th>
+                                        <th class="p-3 text-right">Nominal</th>
+                                        <th class="p-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kas-table-body" class="divide-y divide-slate-100">
+                                    <!-- JS populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Rekap Tab ================= -->
+        <section id="tab-rekap" class="space-y-6 hidden">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 no-print">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">Rekapitulasi Data Dasawisma PKK</h3>
+                        <p class="text-xs text-slate-500">Laporan data Dasawisma kelompok Damar Putih RT 004 / RW 002.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToJSON()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-slate-300">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Simpan Backup (JSON)</span>
+                        </button>
+                        <button onclick="exportToExcelFormatted()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-emerald-200">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Ekspor Excel (.xls)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100">
+                    <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-filter text-emerald-600"></i>
+                        <span>Pilih Bagian Laporan yang Ingin Ditampilkan / Dicetak:</span>
+                    </label>
+                    <div class="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
+                        <label class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-emerald-50/50">
+                            <input type="checkbox" id="toggle-rekap-sec1" checked onchange="toggleRekapSections()" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>I. Jumlah Warga & Kategori</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-emerald-50/50">
+                            <input type="checkbox" id="toggle-rekap-sec2" checked onchange="toggleRekapSections()" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>II. Kesehatan Lingkungan & Pekarangan</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-emerald-50/50">
+                            <input type="checkbox" id="toggle-rekap-sec3" checked onchange="toggleRekapSections()" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>III. Rincian Kepala Keluarga</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 sm:p-10 rounded-2xl border border-slate-200/80 shadow-sm printable-area">
+                <div class="text-center border-b-2 border-slate-800 pb-4 mb-6">
+                    <h2 class="font-bold text-base sm:text-lg uppercase tracking-wide text-slate-900">CATATAN DATA DASAWISMA</h2>
+                    <p id="disp-kelurahan" class="font-semibold text-xs sm:text-sm text-slate-700 uppercase mt-0.5">TIM PENGGERAK PKK KELURAHAN KEBAYORAN LAMA SELATAN</p>
+                    <div class="flex justify-center items-center space-x-3 text-xs text-slate-700 mt-2 font-medium">
+                        <span>DASAWISMA: <strong id="disp-nama-dasawisma" class="text-slate-900 font-bold">DAMAR PUTIH</strong></span>
+                        <span>|</span>
+                        <span>RT/RW: <strong id="disp-rt-rw" class="text-slate-900 font-bold">004 / 002 / 002</strong></span>
+                        <span>|</span>
+                        <span>TAHUN: <strong id="disp-tahun" class="text-slate-900 font-bold">2026</strong></span>
+                    </div>
+                </div>
+
+                <div id="rekap-section-1" class="mb-6 page-break-inside-avoid">
+                    <h4 class="font-bold text-xs sm:text-sm text-slate-800 mb-2 border-l-4 border-emerald-600 pl-2">I. REKAPITULASI JUMLAH WARGA & ANGGOTA KELUARGA PER KATEGORI</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse border border-slate-300 text-center">
+                            <thead class="bg-slate-100 text-slate-700 font-bold">
+                                <tr>
+                                    <th class="border border-slate-300 p-2">Total KK</th>
+                                    <th class="border border-slate-300 p-2">Total Jiwa</th>
+                                    <th class="border border-slate-300 p-2">Laki-Laki</th>
+                                    <th class="border border-slate-300 p-2">Perempuan</th>
+                                    <th class="border border-slate-300 p-2">PUS</th>
+                                    <th class="border border-slate-300 p-2">WUS</th>
+                                    <th class="border border-slate-300 p-2">Balita</th>
+                                    <th class="border border-slate-300 p-2">Remaja</th>
+                                    <th class="border border-slate-300 p-2">Usia Produktif</th>
+                                    <th class="border border-slate-300 p-2">Ibu Hamil / Busui</th>
+                                    <th class="border border-slate-300 p-2">Lansia (KB Aktif)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-summary-body" class="font-medium text-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="rekap-section-2" class="mb-6 page-break-inside-avoid">
+                    <h4 class="font-bold text-xs sm:text-sm text-slate-800 mb-2 border-l-4 border-emerald-600 pl-2">II. REKAPITULASI KESEHATAN LINGKUNGAN & PEKARANGAN</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse border border-slate-300 text-center">
+                            <thead class="bg-slate-100 text-slate-700 font-bold">
+                                <tr>
+                                    <th class="border border-slate-300 p-2">Jamban Sehat</th>
+                                    <th class="border border-slate-300 p-2">Tempat Sampah</th>
+                                    <th class="border border-slate-300 p-2">SPAL Sehat</th>
+                                    <th class="border border-slate-300 p-2">Pemanfaatan TOGA</th>
+                                    <th class="border border-slate-300 p-2">Ketahanan Pangan</th>
+                                    <th class="border border-slate-300 p-2">Industri RT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-lingkungan-body" class="font-medium text-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="rekap-section-3" class="mb-6">
+                    <h4 class="font-bold text-xs sm:text-sm text-slate-800 mb-2 border-l-4 border-emerald-600 pl-2">III. DAFTAR RINCIAN KEPALA KELUARGA & KATEGORI</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse border border-slate-300">
+                            <thead class="bg-slate-100 text-slate-700 font-bold text-center">
+                                <tr>
+                                    <th class="border border-slate-300 p-2">No</th>
+                                    <th class="border border-slate-300 p-2">No. Rmh</th>
+                                    <th class="border border-slate-300 p-2 text-left">Nama Kepala Keluarga</th>
+                                    <th class="border border-slate-300 p-2">Jml Anggota (L/P)</th>
+                                    <th class="border border-slate-300 p-2">Kategori Anggota</th>
+                                    <th class="border border-slate-300 p-2">Fasilitas Rumah</th>
+                                    <th class="border border-slate-300 p-2 text-left">Catatan / Ket</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-kk-body" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Form Tambah / Edit Data KK -->
+    <div id="form-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[92vh]">
+            <div class="bg-gradient-to-r from-emerald-700 to-teal-700 p-4 text-white flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambah Data Kepala Keluarga & Anggota</span>
+                </h3>
+                <button onclick="closeFormModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="kk-form" onsubmit="handleSaveKK(event)" class="p-6 overflow-y-auto space-y-4 text-xs">
+                <input type="hidden" id="kk-id">
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5">
+                        <i class="fa-solid fa-house text-emerald-600"></i>
+                        <span>1. Informasi Utama Kartu Keluarga (KK) & Rumah</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">No. Bangunan / Rumah</label>
+                            <input type="text" id="input-no-rumah" required placeholder="Contoh: A-01" class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Nomor Kartu Keluarga (No. KK)</label>
+                            <input type="text" id="input-no-kk" required placeholder="16 Digit No. KK" maxlength="16" class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Nama Kepala Keluarga (KK)</label>
+                            <input type="text" id="input-nama-kk" required placeholder="Nama Lengkap Kepala KK" oninput="syncKepalaKeluargaNama(this)" class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">NIK Kepala Keluarga</label>
+                            <input type="text" id="input-nik-kk" required placeholder="16 Digit NIK Kepala KK" maxlength="16" oninput="syncKepalaKeluargaNik(this)" class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5">
+                            <i class="fa-solid fa-users text-blue-600"></i>
+                            <span>2. Rincian Anggota Keluarga (Kepala Keluarga Otomatis Bergabung)</span>
+                        </h4>
+                        <button type="button" onclick="addAnggotaRow()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-2.5 py-1 rounded-lg text-xs transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Tambah Anggota</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2" id="anggota-container"></div>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5">
+                        <i class="fa-solid fa-leaf text-emerald-600"></i>
+                        <span>3. Kriteria Rumah, Sanitasi & Pekarangan</span>
+                    </h4>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-jamban" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">Jamban Sehat</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-sampah" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">Tempat Sampah</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-spal" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">SPAL Sehat</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-toga" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">Tanaman TOGA</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-pangan" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">Ketahanan Pangan</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                            <input type="checkbox" id="input-industri" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-medium text-slate-700">Industri Rumah Tangga</span>
+                        </label>
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="block font-semibold text-slate-600 mb-1">Sumber Air Utama</label>
+                        <select id="input-sumber-air" class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <option value="PDAM">PDAM / Air Perpipaan</option>
+                            <option value="Sumur Bor/Gali">Sumur Bor / Sumur Gali</option>
+                            <option value="Mata Air">Mata Air / Air Hujan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Catatan Khusus / Keterangan</label>
+                    <textarea id="input-catatan" rows="2" placeholder="Misal: Penerima PKH, Memiliki usaha keripik, dll." class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></textarea>
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-xl transition-all">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Simpan Data</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200/80 py-4 no-print mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>&copy; 2026 Aplikasi Dasawisma Digital - Membantu Ibu Dasawisma Indonesia</span>
+            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200"><i class="fa-solid fa-database text-emerald-600 mr-1"></i> Penyimpanan Lokal Aktif</span>
+        </div>
+    </footer>
+
+    <!-- Main App Script -->
+    <script>
+        let dataKK = JSON.parse(localStorage.getItem('dasawisma_kk')) || [
+            {
+                id: 'kk-1',
+                noRumah: 'A-01',
+                noKK: '3201012304890001',
+                namaKK: 'Slamet Riyadi',
+                nikKK: '3201011005780001',
+                anggota: [
+                    { nama: 'Slamet Riyadi', nik: '3201011005780001', gender: 'L', tglLahir: '1979-05-10', umur: 47, status: 'Kepala Keluarga', isPus: true, isWus: false, kategori: 'produktif', jenisKB: '' },
+                    { nama: 'Siti Aminah', nik: '3201015208800002', gender: 'P', tglLahir: '1982-08-15', umur: 44, status: 'Istri', isPus: true, isWus: true, kategori: 'busui', jenisKB: 'Suntik 3 Bulan' },
+                    { nama: 'Rizky Pratama', nik: '3201011503100003', gender: 'L', tglLahir: '2012-03-15', umur: 14, status: 'Anak', isPus: false, isWus: false, kategori: 'remaja', jenisKB: '' },
+                    { nama: 'Dede Aris', nik: '3201012010220004', gender: 'L', tglLahir: '2024-10-20', umur: 2, status: 'Anak', isPus: false, isWus: false, kategori: 'balita', jenisKB: '' }
+                ],
+                jamban: true,
+                sampah: true,
+                spal: true,
+                toga: true,
+                pangan: true,
+                industri: false,
+                sumberAir: 'PDAM',
+                catatan: 'Anggota Posyandu Aktif'
+            }
+        ];
+
+        let dataKas = JSON.parse(localStorage.getItem('dasawisma_kas')) || [
+            { id: 'k-1', tgl: '2026-03-01', jenis: 'masuk', jumlah: 150000, ket: 'Iuran Kas Bulanan (15 KK)' },
+            { id: 'k-2', tgl: '2026-03-05', jenis: 'keluar', jumlah: 50000, ket: 'Beli PMT Posyandu Balita' }
+        ];
+
+        let activeTab = 'dashboard';
+        let activeCategoryTab = 'bumil';
+
+        const CONST_NAMA_DASAWISMA = "DAMAR PUTIH";
+        const CONST_RT_RW = "004 / 002 / 002";
+        const CONST_TAHUN = "2026";
+        const CONST_KELURAHAN = "KEBAYORAN LAMA SELATAN";
+
+        function saveToLocalStorage() {
+            localStorage.setItem('dasawisma_kk', JSON.stringify(dataKK));
+            localStorage.setItem('dasawisma_kas', JSON.stringify(dataKas));
+        }
+
+        function formatRupiah(angka) {
+            const val = Number(angka) || 0;
+            return 'Rp ' + val.toLocaleString('id-ID');
+        }
+
+        function calculateAgeFromBirthdate(birthdateString) {
+            if (!birthdateString) return null;
+            const today = new Date();
+            const birthDate = new Date(birthdateString);
+            if (isNaN(birthDate.getTime())) return null;
+            
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age >= 0 ? age : 0;
+        }
+
+        let toastTimeout = null;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (!toast || !toastMsg) return;
+
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+            }
+
+            toastMsg.innerText = message;
+            
+            if (type === 'error') {
+                toast.style.backgroundColor = '#991b1b';
+                toast.style.borderColor = '#f87171';
+                if (toastIcon) toastIcon.className = "fa-solid fa-circle-xmark text-lg text-red-400";
+            } else {
+                toast.style.backgroundColor = '#065f46';
+                toast.style.borderColor = '#34d399';
+                if (toastIcon) toastIcon.className = "fa-solid fa-circle-check text-lg text-emerald-400";
+            }
+
+            toast.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 1000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+                toast.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function toggleRekapSections() {
+            const sec1 = document.getElementById('rekap-section-1');
+            const sec2 = document.getElementById('rekap-section-2');
+            const sec3 = document.getElementById('rekap-section-3');
+
+            const chk1 = document.getElementById('toggle-rekap-sec1')?.checked;
+            const chk2 = document.getElementById('toggle-rekap-sec2')?.checked;
+            const chk3 = document.getElementById('toggle-rekap-sec3')?.checked;
+
+            if (sec1) sec1.classList.toggle('hidden', !chk1);
+            if (sec2) sec2.classList.toggle('hidden', !chk2);
+            if (sec3) sec3.classList.toggle('hidden', !chk3);
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            const tabs = ['dashboard', 'warga', 'kategori', 'kas', 'rekap'];
+            
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+                const mobBtn = document.getElementById(`mob-${t}`);
+
+                if (sec) sec.classList.toggle('hidden', t !== tabId);
+
+                if (navBtn) {
+                    if (t === tabId) {
+                        navBtn.className = "px-3 py-2 rounded-lg transition-all flex items-center space-x-2 bg-white/20 text-white font-semibold";
+                    } else {
+                        navBtn.className = "px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50";
+                    }
+                }
+
+                if (mobBtn) {
+                    if (t === tabId) {
+                        mobBtn.className = "flex flex-col items-center p-1 rounded text-white font-semibold";
+                    } else {
+                        mobBtn.className = "flex flex-col items-center p-1 rounded text-emerald-200";
+                    }
+                }
+            });
+
+            if (tabId === 'dashboard') {
+                updateDashboardMetrics();
+                updateKasMetrics();
+            } else if (tabId === 'warga') {
+                renderWargaTable();
+            } else if (tabId === 'kategori') {
+                renderCategoryTable();
+            } else if (tabId === 'kas') {
+                updateKasMetrics();
+                renderKasTable();
+            } else if (tabId === 'rekap') {
+                renderRekapTable();
+                toggleRekapSections();
+            }
+        }
+
+        function refreshAllUI() {
+            updateDashboardMetrics();
+            updateKasMetrics();
+            renderWargaTable();
+            renderCategoryTable();
+            renderKasTable();
+            renderRekapTable();
+        }
+
+        function openConfirmModal(title, msg, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-modal-title');
+            const msgEl = document.getElementById('confirm-modal-msg');
+            const btn = document.getElementById('confirm-modal-action-btn');
+
+            if (titleEl) titleEl.innerText = title;
+            if (msgEl) msgEl.innerText = msg;
+
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.onclick = function() {
+                onConfirm();
+                closeConfirmModal();
+            };
+
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function requestDeleteKK(id) {
+            openConfirmModal("Hapus Data KK", "Apakah Anda yakin ingin menghapus data Kartu Keluarga ini beserta seluruh anggotanya?", () => {
+                dataKK = dataKK.filter(k => String(k.id) !== String(id));
+                saveToLocalStorage();
+                refreshAllUI();
+                showToast("Data Kartu Keluarga berhasil dihapus!");
+            });
+        }
+
+        function requestDeleteKas(id) {
+            openConfirmModal("Hapus Transaksi Kas", "Apakah Anda yakin ingin menghapus transaksi kas ini?", () => {
+                deleteKas(id);
+            });
+        }
+
+        function deleteKas(id) {
+            dataKas = dataKas.filter(k => String(k.id) !== String(id));
+            saveToLocalStorage();
+            updateKasMetrics();
+            renderKasTable();
+            showToast("Transaksi kas berhasil dihapus!");
+        }
+
+        function editKas(id) {
+            const item = dataKas.find(k => String(k.id) === String(id));
+            if (!item) return;
+
+            document.getElementById('kas-id').value = item.id;
+            document.getElementById('kas-tgl').value = item.tgl;
+            document.getElementById('kas-jenis').value = item.jenis;
+            document.getElementById('kas-jumlah').value = item.jumlah;
+            document.getElementById('kas-ket').value = item.ket;
+
+            const formTitle = document.getElementById('kas-form-title');
+            const btnText = document.getElementById('kas-btn-text');
+            const btnCancel = document.getElementById('btn-cancel-kas-edit');
+
+            if (formTitle) formTitle.querySelector('span').innerText = 'Edit Transaksi Kas';
+            if (btnText) btnText.innerText = 'Update Transaksi';
+            if (btnCancel) btnCancel.classList.remove('hidden');
+        }
+
+        function resetKasForm() {
+            document.getElementById('kas-id').value = '';
+            const kasTgl = document.getElementById('kas-tgl');
+            if (kasTgl) kasTgl.valueAsDate = new Date();
+            document.getElementById('kas-jenis').value = 'masuk';
+            document.getElementById('kas-jumlah').value = '';
+            document.getElementById('kas-ket').value = '';
+
+            const formTitle = document.getElementById('kas-form-title');
+            const btnText = document.getElementById('kas-btn-text');
+            const btnCancel = document.getElementById('btn-cancel-kas-edit');
+
+            if (formTitle) formTitle.querySelector('span').innerText = 'Catat Kas Dasawisma';
+            if (btnText) btnText.innerText = 'Simpan Transaksi';
+            if (btnCancel) btnCancel.classList.add('hidden');
+        }
+
+        function handleSaveKas(e) {
+            e.preventDefault();
+            const kasId = document.getElementById('kas-id').value || ('k-' + Date.now());
+            const tgl = document.getElementById('kas-tgl').value;
+            const jenis = document.getElementById('kas-jenis').value;
+            const jumlah = Number(document.getElementById('kas-jumlah').value) || 0;
+            const ket = document.getElementById('kas-ket').value.trim();
+
+            if (!tgl || !jumlah || !ket) {
+                showToast('Mohon lengkapi seluruh field kas.', 'error');
+                return;
+            }
+
+            const payload = { id: String(kasId), tgl, jenis, jumlah, ket };
+            const index = dataKas.findIndex(k => String(k.id) === String(kasId));
+
+            if (index !== -1) {
+                dataKas[index] = payload;
+                showToast('Transaksi kas berhasil diperbarui!');
+            } else {
+                dataKas.unshift(payload);
+                showToast('Transaksi kas berhasil disimpan!');
+            }
+
+            saveToLocalStorage();
+            updateKasMetrics();
+            renderKasTable();
+            resetKasForm();
+        }
+
+        function updateKasMetrics() {
+            let totalMasuk = 0;
+            let totalKeluar = 0;
+
+            dataKas.forEach(k => {
+                const num = Number(k.jumlah) || 0;
+                if (k.jenis === 'masuk') totalMasuk += num;
+                else if (k.jenis === 'keluar') totalKeluar += num;
+            });
+
+            const saldo = totalMasuk - totalKeluar;
+
+            const dMasuk = document.getElementById('dash-kas-masuk');
+            const dKeluar = document.getElementById('dash-kas-keluar');
+            const dSaldo = document.getElementById('dash-kas-saldo');
+
+            if (dMasuk) dMasuk.innerText = formatRupiah(totalMasuk);
+            if (dKeluar) dKeluar.innerText = formatRupiah(totalKeluar);
+            if (dSaldo) dSaldo.innerText = formatRupiah(saldo);
+
+            const tSaldo = document.getElementById('kas-tab-saldo');
+            const tMasuk = document.getElementById('kas-tab-masuk');
+            const tKeluar = document.getElementById('kas-tab-keluar');
+
+            if (tSaldo) tSaldo.innerText = formatRupiah(saldo);
+            if (tMasuk) tMasuk.innerText = formatRupiah(totalMasuk);
+            if (tKeluar) tKeluar.innerText = formatRupiah(totalKeluar);
+        }
+
+        function updateDashboardMetrics() {
+            let totalKK = dataKK.length;
+            let totalJiwa = 0;
+            let totalBumil = 0;
+            let totalBusui = 0;
+            let totalBalita = 0;
+            let totalRemaja = 0;
+            let totalProduktif = 0;
+            let totalLansia = 0;
+
+            let jamban = 0;
+            let sampah = 0;
+            let spal = 0;
+            let toga = 0;
+
+            dataKK.forEach(k => {
+                if (k.jamban) jamban++;
+                if (k.sampah) sampah++;
+                if (k.spal) spal++;
+                if (k.toga) toga++;
+
+                if (k.anggota) {
+                    totalJiwa += k.anggota.length;
+                    k.anggota.forEach(a => {
+                        let age = a.umur;
+                        if (a.tglLahir) {
+                            const calculated = calculateAgeFromBirthdate(a.tglLahir);
+                            if (calculated !== null) age = calculated;
+                        }
+
+                        if (a.kategori === 'bumil') totalBumil++;
+                        if (a.kategori === 'busui') totalBusui++;
+
+                        if (a.kategori === 'balita' || age <= 5) totalBalita++;
+                        else if (a.kategori === 'remaja' || (age >= 6 && age <= 17)) totalRemaja++;
+                        else if (a.kategori === 'produktif' || (age >= 18 && age <= 59)) totalProduktif++;
+                        else if (a.kategori === 'lansia' || age >= 60) totalLansia++;
+                    });
+                }
+            });
+
+            const eKK = document.getElementById('dash-total-kk');
+            const eJiwa = document.getElementById('dash-total-jiwa');
+            const eBumil = document.getElementById('dash-total-bumil');
+            const eDetBumil = document.getElementById('dash-detail-bumil');
+            const eBalita = document.getElementById('dash-total-balita');
+            const eProd = document.getElementById('dash-total-produktif');
+            const eDetProd = document.getElementById('dash-detail-produktif');
+            const eLansia = document.getElementById('dash-total-lansia');
+
+            if (eKK) eKK.innerText = totalKK;
+            if (eJiwa) eJiwa.innerText = `${totalJiwa} Jiwa Terdata`;
+            if (eBumil) eBumil.innerText = totalBumil + totalBusui;
+            if (eDetBumil) eDetBumil.innerText = `Hamil: ${totalBumil} | Menyusui: ${totalBusui}`;
+            if (eBalita) eBalita.innerText = totalBalita;
+            if (eProd) eProd.innerText = totalRemaja + totalProduktif;
+            if (eDetProd) eDetProd.innerText = `Remaja (6-17): ${totalRemaja} | Produktif (18-59): ${totalProduktif}`;
+            if (eLansia) eLansia.innerText = totalLansia;
+
+            const pJamban = totalKK > 0 ? Math.round((jamban / totalKK) * 100) : 0;
+            const pSampah = totalKK > 0 ? Math.round((sampah / totalKK) * 100) : 0;
+            const pSpal = totalKK > 0 ? Math.round((spal / totalKK) * 100) : 0;
+            const pToga = totalKK > 0 ? Math.round((toga / totalKK) * 100) : 0;
+
+            setBarStat('stat-jamban-txt', 'stat-jamban-bar', pJamban);
+            setBarStat('stat-sampah-txt', 'stat-sampah-bar', pSampah);
+            setBarStat('stat-spal-txt', 'stat-spal-bar', pSpal);
+            setBarStat('stat-toga-txt', 'stat-toga-bar', pToga);
+        }
+
+        function setBarStat(txtId, barId, percent) {
+            const txt = document.getElementById(txtId);
+            const bar = document.getElementById(barId);
+            if (txt) txt.innerText = percent + '%';
+            if (bar) bar.style.width = percent + '%';
+        }
+
+        function renderWargaTable() {
+            const tbody = document.getElementById('warga-table-body');
+            const emptyState = document.getElementById('warga-empty');
+            const searchVal = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const filtered = dataKK.filter(k => {
+                const matchNo = k.noRumah?.toLowerCase().includes(searchVal);
+                const matchKK = k.noKK?.toLowerCase().includes(searchVal);
+                const matchNama = k.namaKK?.toLowerCase().includes(searchVal);
+                const matchNikKK = k.nikKK?.toLowerCase().includes(searchVal);
+                return matchNo || matchKK || matchNama || matchNikKK;
+            });
+
+            if (filtered.length === 0) {
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(k => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+
+                let totalAnggota = k.anggota ? k.anggota.length : 0;
+                let listKategori = [];
+                let fasilitas = [];
+
+                if (k.jamban) fasilitas.push("Jamban");
+                if (k.sampah) fasilitas.push("Sampah");
+                if (k.spal) fasilitas.push("SPAL");
+                if (k.toga) fasilitas.push("TOGA");
+
+                if (k.anggota) {
+                    k.anggota.forEach(a => {
+                        if (a.kategori) listKategori.push(a.kategori);
+                    });
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 pl-4">
+                        <div class="font-bold text-slate-800">No. Rmh: ${k.noRumah}</div>
+                        <div class="text-xs text-slate-500 font-mono">KK: ${k.noKK || '-'}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-semibold text-emerald-900">${k.namaKK}</div>
+                        <div class="text-xs text-slate-500 font-mono">NIK: ${k.nikKK || '-'}</div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold text-xs">${totalAnggota} Jiwa</span>
+                    </td>
+                    <td class="p-3 text-xs text-slate-600">
+                        ${listKategori.length > 0 ? [...new Set(listKategori)].map(c => `<span class="inline-block bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold mr-1 mb-1">${c}</span>`).join('') : '-'}
+                    </td>
+                    <td class="p-3 text-xs text-slate-600">
+                        ${fasilitas.length > 0 ? fasilitas.join(', ') : 'Belum Ada'}
+                    </td>
+                    <td class="p-3 text-center pr-4">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="editKK('${k.id}')" class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs transition-all" title="Edit KK">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="requestDeleteKK('${k.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs transition-all" title="Hapus KK">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchTabCategory(catKey) {
+            activeCategoryTab = catKey;
+            switchTab('kategori');
+            switchCategorySubTab(catKey);
+        }
+
+        function switchCategorySubTab(catKey) {
+            activeCategoryTab = catKey;
+            const subTabs = ['bumil', 'balita', 'remaja', 'produktif', 'lansia', 'pus_wus', 'kb'];
+
+            subTabs.forEach(t => {
+                const btn = document.getElementById(`cat-tab-${t}`);
+                if (btn) {
+                    if (t === catKey) {
+                        btn.className = "px-4 py-2.5 rounded-lg whitespace-nowrap transition-all bg-white text-emerald-700 shadow-sm border-b-2 border-emerald-600 flex items-center space-x-2";
+                    } else {
+                        btn.className = "px-4 py-2.5 rounded-lg whitespace-nowrap transition-all text-slate-600 hover:text-slate-900 hover:bg-white/50 flex items-center space-x-2";
+                    }
+                }
+            });
+
+            renderCategoryTable();
+        }
+
+        function renderCategoryTable() {
+            const tbody = document.getElementById('category-table-body');
+            const emptyState = document.getElementById('category-empty');
+            const infoBanner = document.getElementById('cat-info-banner');
+            const infoTitle = document.getElementById('cat-info-title');
+            const infoDesc = document.getElementById('cat-info-desc');
+            const infoBadge = document.getElementById('cat-info-badge');
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            let filteredMembers = [];
+
+            dataKK.forEach(k => {
+                if (k.anggota) {
+                    k.anggota.forEach(a => {
+                        let age = a.umur;
+                        if (a.tglLahir) {
+                            const calc = calculateAgeFromBirthdate(a.tglLahir);
+                            if (calc !== null) age = calc;
+                        }
+
+                        let match = false;
+                        if (activeCategoryTab === 'bumil') match = a.kategori === 'bumil' || a.kategori === 'busui';
+                        else if (activeCategoryTab === 'balita') match = a.kategori === 'balita' || age <= 5;
+                        else if (activeCategoryTab === 'remaja') match = a.kategori === 'remaja' || (age >= 6 && age <= 17);
+                        else if (activeCategoryTab === 'produktif') match = a.kategori === 'produktif' || (age >= 18 && age <= 59);
+                        else if (activeCategoryTab === 'lansia') match = a.kategori === 'lansia' || age >= 60;
+                        else if (activeCategoryTab === 'pus_wus') match = a.isPus || a.isWus;
+                        else if (activeCategoryTab === 'kb') match = a.status === 'Istri' && a.jenisKB && !a.jenisKB.includes('Tidak KB');
+
+                        if (match) {
+                            filteredMembers.push({ ...a, calculatedAge: age, parentKK: k });
+                        }
+                    });
+                }
+            });
+
+            const bannerInfoMap = {
+                bumil: { title: 'Kategori: Ibu Hamil & Menyusui', desc: 'Menampilkan warga yang sedang hamil atau menyusui.', bg: 'bg-pink-50 border-pink-200', textTitle: 'text-pink-900', textDesc: 'text-pink-700', badge: 'bg-pink-600' },
+                balita: { title: 'Kategori: Anak Balita (0-5 Tahun)', desc: 'Menampilkan anak-anak usia balita terdata di Posyandu/Dasawisma.', bg: 'bg-amber-50 border-amber-200', textTitle: 'text-amber-900', textDesc: 'text-amber-700', badge: 'bg-amber-600' },
+                remaja: { title: 'Kategori: Remaja (6-17 Tahun)', desc: 'Menampilkan anak usia sekolah dan remaja.', bg: 'bg-blue-50 border-blue-200', textTitle: 'text-blue-900', textDesc: 'text-blue-700', badge: 'bg-blue-600' },
+                produktif: { title: 'Kategori: Usia Produktif (18-59 Tahun)', desc: 'Menampilkan anggota keluarga dalam usia produktif.', bg: 'bg-indigo-50 border-indigo-200', textTitle: 'text-indigo-900', textDesc: 'text-indigo-700', badge: 'bg-indigo-600' },
+                lansia: { title: 'Kategori: Lansia (> 60 Tahun)', desc: 'Menampilkan lansia terdata di lingkungan Dasawisma.', bg: 'bg-purple-50 border-purple-200', textTitle: 'text-purple-900', textDesc: 'text-purple-700', badge: 'bg-purple-600' },
+                pus_wus: { title: 'Kategori: PUS (Pasangan Usia Subur) & WUS (Wanita Usia Subur)', desc: 'Menampilkan pasangan usia subur dan wanita usia subur terdata.', bg: 'bg-teal-50 border-teal-200', textTitle: 'text-teal-900', textDesc: 'text-teal-700', badge: 'bg-teal-600' },
+                kb: { title: 'Kategori: Peserta KB Aktif', desc: 'Menampilkan Istri/Ibu yang aktif menggunakan metode kontrasepsi/KB.', bg: 'bg-emerald-50 border-emerald-200', textTitle: 'text-emerald-900', textDesc: 'text-emerald-700', badge: 'bg-emerald-600' }
+            };
+
+            const info = bannerInfoMap[activeCategoryTab] || bannerInfoMap.bumil;
+            if (infoBanner) infoBanner.className = `p-4 rounded-xl border flex items-center justify-between ${info.bg}`;
+            if (infoTitle) {
+                infoTitle.className = `font-bold text-sm ${info.textTitle}`;
+                infoTitle.innerText = info.title;
+            }
+            if (infoDesc) {
+                infoDesc.className = `text-xs mt-0.5 ${info.textDesc}`;
+                infoDesc.innerText = info.desc;
+            }
+            if (infoBadge) {
+                infoBadge.className = `text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm ${info.badge}`;
+                infoBadge.innerText = `Total: ${filteredMembers.length} Jiwa`;
+            }
+
+            if (filteredMembers.length === 0) {
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+            }
+
+            filteredMembers.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+
+                let pusWusBadges = [];
+                if (m.isPus) pusWusBadges.push(`<span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded font-bold text-[10px]">PUS</span>`);
+                if (m.isWus) pusWusBadges.push(`<span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded font-bold text-[10px]">WUS</span>`);
+
+                let extraInfo = [];
+                if (m.status === 'Istri' && m.jenisKB) extraInfo.push(`<span class="font-bold text-pink-700">KB: ${m.jenisKB}</span>`);
+                if (m.kategori) extraInfo.push(`<span class="uppercase text-[10px] text-slate-500">KAT: ${m.kategori}</span>`);
+
+                tr.innerHTML = `
+                    <td class="p-3 pl-4">
+                        <div class="font-bold text-slate-800">No. Rmh: ${m.parentKK.noRumah}</div>
+                        <div class="text-[11px] text-slate-500 font-mono">KK: ${m.parentKK.noKK || '-'}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-emerald-800">${m.nama}</div>
+                        <div class="text-[11px] text-slate-500 font-mono">NIK: ${m.nik || '-'}</div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="px-2 py-0.5 rounded font-bold ${m.gender === 'L' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'}">${m.gender}</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="font-bold text-slate-700">${m.calculatedAge} Thn</span>
+                        <div class="text-[10px] text-slate-400">${m.tglLahir || '-'}</div>
+                    </td>
+                    <td class="p-3 font-semibold text-slate-700">${m.status}</td>
+                    <td class="p-3">
+                        <div class="flex flex-wrap items-center gap-1">
+                            ${pusWusBadges.join(' ')}
+                            ${extraInfo.join(' | ')}
+                        </div>
+                    </td>
+                    <td class="p-3 text-center pr-4">
+                        <button onclick="editKK('${m.parentKK.id}')" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-all">
+                            Lihat KK
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderKasTable() {
+            const tbody = document.getElementById('kas-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            dataKas.forEach(k => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+
+                const isMasuk = k.jenis === 'masuk';
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-slate-600">${k.tgl}</td>
+                    <td class="p-3 font-semibold text-slate-800">${k.ket}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${isMasuk ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${isMasuk ? 'Pemasukan' : 'Pengeluaran'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right font-bold ${isMasuk ? 'text-emerald-700' : 'text-red-700'}">
+                        ${isMasuk ? '+ ' : '- '}${formatRupiah(k.jumlah)}
+                    </td>
+                    <td class="p-3 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="editKas('${k.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Edit Kas">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="requestDeleteKas('${k.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Hapus Kas">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderRekapTable() {
+            const sumBody = document.getElementById('rekap-summary-body');
+            let totalKK = dataKK.length;
+            let totalJiwa = 0, laki = 0, peremp = 0, pus = 0, wus = 0, balita = 0, remaja = 0, prod = 0, bumilBusui = 0, lansiaKb = 0;
+
+            let jamban = 0, sampah = 0, spal = 0, toga = 0, pangan = 0, industri = 0;
+
+            dataKK.forEach(k => {
+                if (k.jamban) jamban++;
+                if (k.sampah) sampah++;
+                if (k.spal) spal++;
+                if (k.toga) toga++;
+                if (k.pangan) pangan++;
+                if (k.industri) industri++;
+
+                if (k.anggota) {
+                    totalJiwa += k.anggota.length;
+                    k.anggota.forEach(a => {
+                        let age = a.umur;
+                        if (a.tglLahir) {
+                            const calc = calculateAgeFromBirthdate(a.tglLahir);
+                            if (calc !== null) age = calc;
+                        }
+
+                        if (a.gender === 'L') laki++;
+                        if (a.gender === 'P') peremp++;
+
+                        if (a.isPus) pus++;
+                        if (a.isWus) wus++;
+
+                        if (a.kategori === 'bumil' || a.kategori === 'busui') bumilBusui++;
+
+                        if (a.kategori === 'balita' || age <= 5) balita++;
+                        else if (a.kategori === 'remaja' || (age >= 6 && age <= 17)) remaja++;
+                        else if (a.kategori === 'produktif' || (age >= 18 && age <= 59)) prod++;
+                        else if (a.kategori === 'lansia' || age >= 60) lansiaKb++;
+                    });
+                }
+            });
+
+            if (sumBody) {
+                sumBody.innerHTML = `
+                    <tr>
+                        <td class="border border-slate-300 p-2 font-bold">${totalKK} KK</td>
+                        <td class="border border-slate-300 p-2 font-bold">${totalJiwa} Jiwa</td>
+                        <td class="border border-slate-300 p-2">${laki}</td>
+                        <td class="border border-slate-300 p-2">${peremp}</td>
+                        <td class="border border-slate-300 p-2">${pus}</td>
+                        <td class="border border-slate-300 p-2">${wus}</td>
+                        <td class="border border-slate-300 p-2">${balita}</td>
+                        <td class="border border-slate-300 p-2">${remaja}</td>
+                        <td class="border border-slate-300 p-2">${prod}</td>
+                        <td class="border border-slate-300 p-2">${bumilBusui}</td>
+                        <td class="border border-slate-300 p-2">${lansiaKb}</td>
+                    </tr>
+                `;
+            }
+
+            const lingBody = document.getElementById('rekap-lingkungan-body');
+            if (lingBody) {
+                lingBody.innerHTML = `
+                    <tr>
+                        <td class="border border-slate-300 p-2">${jamban} Rumah</td>
+                        <td class="border border-slate-300 p-2">${sampah} Rumah</td>
+                        <td class="border border-slate-300 p-2">${spal} Rumah</td>
+                        <td class="border border-slate-300 p-2">${toga} Rumah</td>
+                        <td class="border border-slate-300 p-2">${pangan} Rumah</td>
+                        <td class="border border-slate-300 p-2">${industri} Rumah</td>
+                    </tr>
+                `;
+            }
+
+            const kkBody = document.getElementById('rekap-kk-body');
+            if (kkBody) {
+                kkBody.innerHTML = '';
+                dataKK.forEach((k, idx) => {
+                    let lCount = 0, pCount = 0;
+                    let kats = [];
+                    if (k.anggota) {
+                        k.anggota.forEach(a => {
+                            if (a.gender === 'L') lCount++;
+                            if (a.gender === 'P') pCount++;
+                            if (a.kategori) kats.push(a.kategori);
+                            if (a.jenisKB && a.jenisKB !== '') kats.push('KB: ' + a.jenisKB);
+                        });
+                    }
+
+                    let fas = [];
+                    if (k.jamban) fas.push('Jamban');
+                    if (k.sampah) fas.push('Sampah');
+                    if (k.spal) fas.push('SPAL');
+                    if (k.toga) fas.push('TOGA');
+
+                    const tr = document.createElement('tr');
+                    tr.className = "text-center";
+                    tr.innerHTML = `
+                        <td class="border border-slate-300 p-2">${idx + 1}</td>
+                        <td class="border border-slate-300 p-2 font-bold">${k.noRumah}</td>
+                        <td class="border border-slate-300 p-2 text-left font-bold">${k.namaKK}</td>
+                        <td class="border border-slate-300 p-2">${k.anggota ? k.anggota.length : 0} (${lCount}/${pCount})</td>
+                        <td class="border border-slate-300 p-2 text-left text-[11px]">${kats.join(', ')}</td>
+                        <td class="border border-slate-300 p-2 text-left text-[11px]">${fas.join(', ')}</td>
+                        <td class="border border-slate-300 p-2 text-left">${k.catatan || '-'}</td>
+                    `;
+                    kkBody.appendChild(tr);
+                });
+            }
+        }
+
+        function openFormModal() {
+            const modal = document.getElementById('form-modal');
+            const form = document.getElementById('kk-form');
+            const modalTitle = document.getElementById('modal-title');
+
+            if (form) form.reset();
+            document.getElementById('kk-id').value = '';
+            document.getElementById('anggota-container').innerHTML = '';
+
+            if (modalTitle) modalTitle.innerText = "Tambah Data Kepala Keluarga & Anggota";
+
+            addAnggotaRow({ status: 'Kepala Keluarga' });
+
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeFormModal() {
+            const modal = document.getElementById('form-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function syncKepalaKeluargaNama(elem) {
+            const container = document.getElementById('anggota-container');
+            const firstRow = container.querySelector('.space-y-2');
+            if (firstRow) {
+                const namaInput = firstRow.querySelector('input[name="ang-nama"]');
+                if (namaInput) namaInput.value = elem.value;
+            }
+        }
+
+        function syncKepalaKeluargaNik(elem) {
+            const container = document.getElementById('anggota-container');
+            const firstRow = container.querySelector('.space-y-2');
+            if (firstRow) {
+                const nikInput = firstRow.querySelector('input[name="ang-nik"]');
+                if (nikInput) nikInput.value = elem.value;
+            }
+        }
+
+        function addAnggotaRow(data = {}) {
+            const container = document.getElementById('anggota-container');
+            if (!container) return;
+
+            const isFirstRow = container.children.length === 0;
+            const statusVal = isFirstRow ? 'Kepala Keluarga' : (data.status || 'Anak');
+            const rowId = 'ang-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            const div = document.createElement('div');
+            div.className = "bg-white p-3 rounded-xl border border-slate-200 space-y-2 relative pr-8";
+            div.id = rowId;
+
+            const isIstri = statusVal === 'Istri';
+            const calculatedAge = data.tglLahir ? calculateAgeFromBirthdate(data.tglLahir) : (data.umur !== undefined ? data.umur : null);
+            const ageBadgeText = calculatedAge !== null ? ` (Usia: ${calculatedAge} Thn)` : '';
+
+            let defaultNama = data.nama || '';
+            let defaultNik = data.nik || '';
+            if (isFirstRow && !defaultNama) {
+                defaultNama = document.getElementById('input-nama-kk')?.value || '';
+            }
+            if (isFirstRow && !defaultNik) {
+                defaultNik = document.getElementById('input-nik-kk')?.value || '';
+            }
+
+            div.innerHTML = `
+                ${!isFirstRow ? `<button type="button" onclick="document.getElementById('${rowId}').remove()" class="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-xmark text-base"></i></button>` : ''}
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500">Nama Lengkap</label>
+                        <input type="text" name="ang-nama" required value="${defaultNama}" placeholder="Nama Lengkap" ${isFirstRow ? 'oninput="document.getElementById(\'input-nama-kk\').value = this.value"' : ''} class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500">NIK (16 Digit)</label>
+                        <input type="text" name="ang-nik" maxlength="16" value="${defaultNik}" placeholder="16 Digit NIK" ${isFirstRow ? 'oninput="document.getElementById(\'input-nik-kk\').value = this.value"' : ''} class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500">Gender</label>
+                        <select name="ang-gender" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs">
+                            <option value="L" ${data.gender === 'L' || isFirstRow ? 'selected' : ''}>Laki-Laki (L)</option>
+                            <option value="P" ${data.gender === 'P' ? 'selected' : ''}>Perempuan (P)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500 flex justify-between items-center">
+                            <span>Tanggal Lahir</span>
+                            <span name="ang-age-label" class="text-emerald-700 font-bold">${ageBadgeText}</span>
+                        </label>
+                        <input type="date" name="ang-tgl" value="${data.tglLahir || ''}" onchange="handleBirthdateChange(this)" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500">Hubungan Keluarga</label>
+                        <select name="ang-status" onchange="handleStatusChange(this)" ${isFirstRow ? 'disabled' : ''} class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs">
+                            <option value="Kepala Keluarga" ${statusVal === 'Kepala Keluarga' ? 'selected' : ''}>Kepala Keluarga</option>
+                            <option value="Istri" ${statusVal === 'Istri' ? 'selected' : ''}>Istri</option>
+                            <option value="Anak" ${statusVal === 'Anak' ? 'selected' : ''}>Anak</option>
+                            <option value="Orang Tua" ${statusVal === 'Orang Tua' ? 'selected' : ''}>Orang Tua</option>
+                            <option value="Lainnya" ${statusVal === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                        </select>
+                        ${isFirstRow ? '<input type="hidden" name="ang-status" value="Kepala Keluarga">' : ''}
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500">Kategori Anggota</label>
+                        <select name="ang-kategori" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs">
+                            <option value="balita" ${data.kategori === 'balita' ? 'selected' : ''}>Balita (0-5 Thn)</option>
+                            <option value="remaja" ${data.kategori === 'remaja' ? 'selected' : ''}>Remaja (6-17 Thn)</option>
+                            <option value="produktif" ${data.kategori === 'produktif' || !data.kategori ? 'selected' : ''}>Produktif (18-59 Thn)</option>
+                            <option value="lansia" ${data.kategori === 'lansia' ? 'selected' : ''}>Lansia (>60 Thn)</option>
+                            <option value="bumil" ${data.kategori === 'bumil' ? 'selected' : ''}>Ibu Hamil</option>
+                            <option value="busui" ${data.kategori === 'busui' ? 'selected' : ''}>Ibu Menyusui</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-3 pt-3">
+                        <label class="flex items-center space-x-1 cursor-pointer">
+                            <input type="checkbox" name="ang-pus" ${data.isPus ? 'checked' : ''} class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-xs font-semibold text-slate-600">PUS</span>
+                        </label>
+                        <label class="flex items-center space-x-1 cursor-pointer">
+                            <input type="checkbox" name="ang-wus" ${data.isWus ? 'checked' : ''} class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-xs font-semibold text-slate-600">WUS</span>
+                        </label>
+                    </div>
+                    <div class="kb-container ${isIstri ? '' : 'hidden'}">
+                        <label class="block text-[10px] font-semibold text-pink-700">Metode KB (Istri)</label>
+                        <select name="ang-kb" class="w-full p-1.5 bg-pink-50 border border-pink-200 rounded text-xs text-pink-900 font-semibold">
+                            <option value="">-- Pilih KB --</option>
+                            <option value="Suntik 1 Bulan" ${data.jenisKB === 'Suntik 1 Bulan' ? 'selected' : ''}>Suntik 1 Bulan</option>
+                            <option value="Suntik 3 Bulan" ${data.jenisKB === 'Suntik 3 Bulan' ? 'selected' : ''}>Suntik 3 Bulan</option>
+                            <option value="Pil KB" ${data.jenisKB === 'Pil KB' ? 'selected' : ''}>Pil KB</option>
+                            <option value="IUD / Spiral" ${data.jenisKB === 'IUD / Spiral' ? 'selected' : ''}>IUD / Spiral</option>
+                            <option value="Implan / Susuk" ${data.jenisKB === 'Implan / Susuk' ? 'selected' : ''}>Implan / Susuk</option>
+                            <option value="MOW / Steril" ${data.jenisKB === 'MOW / Steril' ? 'selected' : ''}>MOW / Steril</option>
+                            <option value="Kondom" ${data.jenisKB === 'Kondom' ? 'selected' : ''}>Kondom</option>
+                            <option value="Tidak KB (Sedang Hamil)" ${data.jenisKB === 'Tidak KB (Sedang Hamil)' ? 'selected' : ''}>Tidak KB (Sedang Hamil)</option>
+                            <option value="Tidak KB (Ingin Anak)" ${data.jenisKB === 'Tidak KB (Ingin Anak)' ? 'selected' : ''}>Tidak KB (Ingin Anak)</option>
+                            <option value="Lainnya" ${data.jenisKB === 'Lainnya' ? 'selected' : ''}>Lainnya / Tanpa KB</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function handleBirthdateChange(elem) {
+            const age = calculateAgeFromBirthdate(elem.value);
+            const parent = elem.closest('.space-y-2');
+            const ageLabel = parent.querySelector('span[name="ang-age-label"]');
+            
+            if (age !== null) {
+                if (ageLabel) ageLabel.innerText = `(Usia: ${age} Thn)`;
+                const katSelect = parent.querySelector('select[name="ang-kategori"]');
+                if (katSelect) {
+                    if (age <= 5) katSelect.value = 'balita';
+                    else if (age >= 6 && age <= 17) katSelect.value = 'remaja';
+                    else if (age >= 18 && age <= 59) katSelect.value = 'produktif';
+                    else if (age >= 60) katSelect.value = 'lansia';
+                }
+            } else {
+                if (ageLabel) ageLabel.innerText = '';
+            }
+        }
+
+        function handleStatusChange(elem) {
+            const parent = elem.closest('.space-y-2');
+            const kbContainer = parent.querySelector('.kb-container');
+            if (kbContainer) {
+                if (elem.value === 'Istri') {
+                    kbContainer.classList.remove('hidden');
+                } else {
+                    kbContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        function editKK(id) {
+            const kk = dataKK.find(k => String(k.id) === String(id));
+            if (!kk) return;
+
+            openFormModal();
+            document.getElementById('modal-title').innerText = "Edit Data Kartu Keluarga (KK)";
+            document.getElementById('kk-id').value = kk.id;
+            document.getElementById('input-no-rumah').value = kk.noRumah || '';
+            document.getElementById('input-no-kk').value = kk.noKK || '';
+            document.getElementById('input-nama-kk').value = kk.namaKK || '';
+            document.getElementById('input-nik-kk').value = kk.nikKK || '';
+
+            document.getElementById('input-jamban').checked = !!kk.jamban;
+            document.getElementById('input-sampah').checked = !!kk.sampah;
+            document.getElementById('input-spal').checked = !!kk.spal;
+            document.getElementById('input-toga').checked = !!kk.toga;
+            document.getElementById('input-pangan').checked = !!kk.pangan;
+            document.getElementById('input-industri').checked = !!kk.industri;
+
+            document.getElementById('input-sumber-air').value = kk.sumberAir || 'PDAM';
+            document.getElementById('input-catatan').value = kk.catatan || '';
+
+            const container = document.getElementById('anggota-container');
+            container.innerHTML = '';
+
+            if (kk.anggota && kk.anggota.length > 0) {
+                kk.anggota.forEach(a => addAnggotaRow(a));
+            } else {
+                addAnggotaRow({ status: 'Kepala Keluarga' });
+            }
+        }
+
+        function handleSaveKK(e) {
+            e.preventDefault();
+
+            const kkId = document.getElementById('kk-id').value || ('kk-' + Date.now());
+            const noRumah = document.getElementById('input-no-rumah').value.trim();
+            const noKK = document.getElementById('input-no-kk').value.trim();
+            const namaKK = document.getElementById('input-nama-kk').value.trim();
+            const nikKK = document.getElementById('input-nik-kk').value.trim();
+
+            const jamban = document.getElementById('input-jamban').checked;
+            const sampah = document.getElementById('input-sampah').checked;
+            const spal = document.getElementById('input-spal').checked;
+            const toga = document.getElementById('input-toga').checked;
+            const pangan = document.getElementById('input-pangan').checked;
+            const industri = document.getElementById('input-industri').checked;
+
+            const sumberAir = document.getElementById('input-sumber-air').value;
+            const catatan = document.getElementById('input-catatan').value.trim();
+
+            const container = document.getElementById('anggota-container');
+            const rows = container.querySelectorAll('.space-y-2');
+            let anggotaList = [];
+
+            rows.forEach((r, idx) => {
+                const nama = r.querySelector('input[name="ang-nama"]')?.value.trim();
+                const nik = r.querySelector('input[name="ang-nik"]')?.value.trim();
+                const gender = r.querySelector('select[name="ang-gender"]')?.value;
+                const tglLahir = r.querySelector('input[name="ang-tgl"]')?.value;
+                const statusSelect = r.querySelector('select[name="ang-status"]');
+                const status = statusSelect ? statusSelect.value : (idx === 0 ? 'Kepala Keluarga' : 'Anak');
+                const kategori = r.querySelector('select[name="ang-kategori"]')?.value;
+                const isPus = r.querySelector('input[name="ang-pus"]')?.checked || false;
+                const isWus = r.querySelector('input[name="ang-wus"]')?.checked || false;
+                const jenisKB = r.querySelector('select[name="ang-kb"]')?.value || '';
+
+                const calculatedAge = calculateAgeFromBirthdate(tglLahir) || 0;
+
+                if (nama) {
+                    anggotaList.push({
+                        nama,
+                        nik,
+                        gender,
+                        tglLahir,
+                        umur: calculatedAge,
+                        status,
+                        kategori,
+                        isPus,
+                        isWus,
+                        jenisKB
+                    });
+                }
+            });
+
+            if (anggotaList.length === 0) {
+                showToast('Mohon isi minimal 1 anggota keluarga.', 'error');
+                return;
+            }
+
+            const payload = {
+                id: String(kkId),
+                noRumah,
+                noKK,
+                namaKK,
+                nikKK,
+                anggota: anggotaList,
+                jamban,
+                sampah,
+                spal,
+                toga,
+                pangan,
+                industri,
+                sumberAir,
+                catatan
+            };
+
+            const idx = dataKK.findIndex(k => String(k.id) === String(kkId));
+            if (idx !== -1) {
+                dataKK[idx] = payload;
+                showToast('Data Kartu Keluarga berhasil diperbarui!');
+            } else {
+                dataKK.push(payload);
+                showToast('Data Kartu Keluarga berhasil disimpan!');
+            }
+
+            saveToLocalStorage();
+            refreshAllUI();
+            closeFormModal();
+        }
+
+        function exportToJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ dataKK, dataKas }, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Dasawisma_Backup_${CONST_NAMA_DASAWISMA}_2026.json`);
+            dlAnchorElem.click();
+        }
+
+        function exportToExcelFormatted() {
+            let html = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8" />
+                    <style>
+                        body { font-family: 'Calibri', Arial, sans-serif; color: #1e293b; }
+                        .header-title { font-size: 14pt; font-weight: bold; text-align: center; color: #0f172a; }
+                        .header-sub { font-size: 10pt; font-weight: bold; text-align: center; color: #334155; }
+                        .header-meta { font-size: 9pt; text-align: center; color: #475569; padding-bottom: 10px; }
+                        .section-title { font-size: 10pt; font-weight: bold; color: #065f46; background-color: #e2e8f0; padding: 6px; margin-top: 15px; }
+                        table { border-collapse: collapse; width: 100%; margin-bottom: 15px; font-size: 10pt; }
+                        th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #64748b; padding: 6px; text-align: center; vertical-align: middle; }
+                        td { border: 1px solid #94a3b8; padding: 5px 6px; vertical-align: middle; }
+                        .text-center { text-align: center; }
+                        .text-left { text-align: left; }
+                        .font-bold { font-weight: bold; }
+                        .num-text { mso-number-format:"\\@"; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <tr><td colspan="11" class="header-title" style="border:none;">CATATAN DATA DASAWISMA</td></tr>
+                        <tr><td colspan="11" class="header-sub" style="border:none;">TIM PENGGERAK PKK KELURAHAN ${CONST_KELURAHAN}</td></tr>
+                        <tr><td colspan="11" class="header-meta" style="border:none;">DASAWISMA: ${CONST_NAMA_DASAWISMA} | RT/RW: ${CONST_RT_RW} | TAHUN: ${CONST_TAHUN}</td></tr>
+                    </table>
+            `;
+
+            const chk1 = document.getElementById('toggle-rekap-sec1')?.checked;
+            const chk2 = document.getElementById('toggle-rekap-sec2')?.checked;
+            const chk3 = document.getElementById('toggle-rekap-sec3')?.checked;
+
+            if (chk1) {
+                let totalKK = dataKK.length;
+                let totalJiwa = 0, laki = 0, peremp = 0, pus = 0, wus = 0, balita = 0, remaja = 0, prod = 0, bumilBusui = 0, lansiaKb = 0;
+
+                dataKK.forEach(k => {
+                    if (k.anggota) {
+                        totalJiwa += k.anggota.length;
+                        k.anggota.forEach(a => {
+                            let age = a.umur;
+                            if (a.tglLahir) {
+                                const calc = calculateAgeFromBirthdate(a.tglLahir);
+                                if (calc !== null) age = calc;
+                            }
+
+                            if (a.gender === 'L') laki++;
+                            if (a.gender === 'P') peremp++;
+                            if (a.isPus) pus++;
+                            if (a.isWus) wus++;
+                            if (a.kategori === 'bumil' || a.kategori === 'busui') bumilBusui++;
+
+                            if (a.kategori === 'balita' || age <= 5) balita++;
+                            else if (a.kategori === 'remaja' || (age >= 6 && age <= 17)) remaja++;
+                            else if (a.kategori === 'produktif' || (age >= 18 && age <= 59)) prod++;
+                            else if (a.kategori === 'lansia' || age >= 60) lansiaKb++;
+                        });
+                    }
+                });
+
+                html += `
+                    <div class="section-title">I. REKAPITULASI JUMLAH WARGA & ANGGOTA KELUARGA PER KATEGORI</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Total KK</th>
+                                <th>Total Jiwa</th>
+                                <th>Laki-Laki</th>
+                                <th>Perempuan</th>
+                                <th>PUS</th>
+                                <th>WUS</th>
+                                <th>Balita</th>
+                                <th>Remaja</th>
+                                <th>Usia Produktif</th>
+                                <th>Ibu Hamil / Busui</th>
+                                <th>Lansia (KB Aktif)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="text-center font-bold">
+                                <td>${totalKK} KK</td>
+                                <td>${totalJiwa} Jiwa</td>
+                                <td>${laki}</td>
+                                <td>${peremp}</td>
+                                <td>${pus}</td>
+                                <td>${wus}</td>
+                                <td>${balita}</td>
+                                <td>${remaja}</td>
+                                <td>${prod}</td>
+                                <td>${bumilBusui}</td>
+                                <td>${lansiaKb}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (chk2) {
+                let jamban = 0, sampah = 0, spal = 0, toga = 0, pangan = 0, industri = 0;
+
+                dataKK.forEach(k => {
+                    if (k.jamban) jamban++;
+                    if (k.sampah) sampah++;
+                    if (k.spal) spal++;
+                    if (k.toga) toga++;
+                    if (k.pangan) pangan++;
+                    if (k.industri) industri++;
+                });
+
+                html += `
+                    <div class="section-title">II. REKAPITULASI KESEHATAN LINGKUNGAN & PEKARANGAN</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Jamban Sehat</th>
+                                <th>Tempat Sampah</th>
+                                <th>SPAL Sehat</th>
+                                <th>Pemanfaatan TOGA</th>
+                                <th>Ketahanan Pangan</th>
+                                <th>Industri RT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="text-center font-bold">
+                                <td>${jamban} Rumah</td>
+                                <td>${sampah} Rumah</td>
+                                <td>${spal} Rumah</td>
+                                <td>${toga} Rumah</td>
+                                <td>${pangan} Rumah</td>
+                                <td>${industri} Rumah</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (chk3) {
+                html += `
+                    <div class="section-title">III. DAFTAR RINCIAN KEPALA KELUARGA & KATEGORI</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">No</th>
+                                <th style="width: 90px;">No. Rmh</th>
+                                <th style="width: 140px;" class="num-text">No. KK</th>
+                                <th>Nama Kepala Keluarga</th>
+                                <th style="width: 100px;">Jml Anggota (L/P)</th>
+                                <th>Kategori Anggota</th>
+                                <th>Fasilitas Rumah</th>
+                                <th>Catatan / Ket</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                dataKK.forEach((k, idx) => {
+                    let lCount = 0, pCount = 0;
+                    let kats = [];
+                    if (k.anggota) {
+                        k.anggota.forEach(a => {
+                            if (a.gender === 'L') lCount++;
+                            if (a.gender === 'P') pCount++;
+                            if (a.kategori) kats.push(a.kategori);
+                            if (a.jenisKB && a.jenisKB !== '') kats.push('KB: ' + a.jenisKB);
+                        });
+                    }
+
+                    let fas = [];
+                    if (k.jamban) fas.push('Jamban');
+                    if (k.sampah) fas.push('Sampah');
+                    if (k.spal) fas.push('SPAL');
+                    if (k.toga) fas.push('TOGA');
+
+                    html += `
+                        <tr>
+                            <td class="text-center">${idx + 1}</td>
+                            <td class="text-center font-bold">${k.noRumah}</td>
+                            <td class="text-center num-text">&nbsp;${k.noKK || ''}</td>
+                            <td class="text-left font-bold">${k.namaKK}</td>
+                            <td class="text-center">${k.anggota ? k.anggota.length : 0} (${lCount}/${pCount})</td>
+                            <td class="text-left">${kats.join(', ')}</td>
+                            <td class="text-left">${fas.join(', ')}</td>
+                            <td class="text-left">${k.catatan || '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            html += `</body></html>`;
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Dasawisma_${CONST_NAMA_DASAWISMA}_2026.xls`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCategoryToExcel() {
+            let filteredMembers = [];
+            dataKK.forEach(k => {
+                if (k.anggota) {
+                    k.anggota.forEach(a => {
+                        let age = a.umur;
+                        if (a.tglLahir) {
+                            const calc = calculateAgeFromBirthdate(a.tglLahir);
+                            if (calc !== null) age = calc;
+                        }
+                        let match = false;
+                        if (activeCategoryTab === 'bumil') match = a.kategori === 'bumil' || a.kategori === 'busui';
+                        else if (activeCategoryTab === 'balita') match = a.kategori === 'balita' || age <= 5;
+                        else if (activeCategoryTab === 'remaja') match = a.kategori === 'remaja' || (age >= 6 && age <= 17);
+                        else if (activeCategoryTab === 'produktif') match = a.kategori === 'produktif' || (age >= 18 && age <= 59);
+                        else if (activeCategoryTab === 'lansia') match = a.kategori === 'lansia' || age >= 60;
+                        else if (activeCategoryTab === 'pus_wus') match = a.isPus || a.isWus;
+                        else if (activeCategoryTab === 'kb') match = a.status === 'Istri' && a.jenisKB && !a.jenisKB.includes('Tidak KB');
+
+                        if (match) {
+                            filteredMembers.push({ ...a, calculatedAge: age, parentKK: k });
+                        }
+                    });
+                }
+            });
+
+            const titlesMap = {
+                bumil: 'IBU HAMIL & MENYUSUI',
+                balita: 'BALITA (0-5 TAHUN)',
+                remaja: 'REMAJA (6-17 TAHUN)',
+                produktif: 'USIA PRODUKTIF (18-59 TAHUN)',
+                lansia: 'LANSIA (>60 TAHUN)',
+                pus_wus: 'PASANGAN USIA SUBUR & WANITA USIA SUBUR (PUS & WUS)',
+                kb: 'PESERTA KB AKTIF'
+            };
+
+            let html = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8" />
+                    <style>
+                        body { font-family: 'Calibri', Arial, sans-serif; color: #1e293b; }
+                        .header-title { font-size: 14pt; font-weight: bold; text-align: center; color: #0f172a; }
+                        .header-sub { font-size: 10pt; font-weight: bold; text-align: center; color: #334155; }
+                        .header-meta { font-size: 9pt; text-align: center; color: #475569; padding-bottom: 10px; }
+                        table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 10pt; }
+                        th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #64748b; padding: 6px; text-align: center; vertical-align: middle; }
+                        td { border: 1px solid #94a3b8; padding: 5px 6px; vertical-align: middle; }
+                        .text-center { text-align: center; }
+                        .text-left { text-align: left; }
+                        .font-bold { font-weight: bold; }
+                        .num-text { mso-number-format:"\\@"; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <tr><td colspan="8" class="header-title" style="border:none;">REKAPITULASI KATEGORI: ${titlesMap[activeCategoryTab] || ''}</td></tr>
+                        <tr><td colspan="8" class="header-sub" style="border:none;">TIM PENGGERAK PKK KELURAHAN ${CONST_KELURAHAN}</td></tr>
+                        <tr><td colspan="8" class="header-meta" style="border:none;">DASAWISMA: ${CONST_NAMA_DASAWISMA} | RT/RW: ${CONST_RT_RW} | TAHUN: ${CONST_TAHUN}</td></tr>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">No. Rumah</th>
+                                <th style="width: 140px;" class="num-text">No. KK</th>
+                                <th style="width: 180px;" class="num-text">NIK</th>
+                                <th style="width: 160px;" class="text-left">Nama Anggota</th>
+                                <th style="width: 50px;" class="text-center">L/P</th>
+                                <th style="width: 90px;" class="text-center">Usia</th>
+                                <th style="width: 120px;" class="text-left">Status dlm KK</th>
+                                <th style="width: 200px;" class="text-left">Detail Kategori / KB</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            filteredMembers.forEach(m => {
+                let details = [];
+                if (m.isPus) details.push('PUS');
+                if (m.isWus) details.push('WUS');
+                if (m.jenisKB) details.push('KB: ' + m.jenisKB);
+                if (m.kategori) details.push('KAT: ' + m.kategori);
+
+                html += `
+                    <tr>
+                        <td class="text-center font-bold">${m.parentKK.noRumah}</td>
+                        <td class="text-center num-text">&nbsp;${m.parentKK.noKK || ''}</td>
+                        <td class="text-center num-text">&nbsp;${m.nik || ''}</td>
+                        <td class="text-left font-bold">${m.nama}</td>
+                        <td class="text-center">${m.gender}</td>
+                        <td class="text-center">${m.calculatedAge} Thn</td>
+                        <td class="text-left">${m.status}</td>
+                        <td class="text-left">${details.join(' | ')}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rekap_Kategori_${activeCategoryTab}_${CONST_NAMA_DASAWISMA}.xls`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        window.formatRupiah = formatRupiah;
+        window.calculateAgeFromBirthdate = calculateAgeFromBirthdate;
+        window.showToast = showToast;
+        window.hideToast = hideToast;
+        window.switchTab = switchTab;
+        window.switchTabCategory = switchTabCategory;
+        window.switchCategorySubTab = switchCategorySubTab;
+        window.toggleRekapSections = toggleRekapSections;
+        window.handleSaveKas = handleSaveKas;
+        window.editKas = editKas;
+        window.resetKasForm = resetKasForm;
+        window.handleSaveKK = handleSaveKK;
+        window.openFormModal = openFormModal;
+        window.closeFormModal = closeFormModal;
+        window.syncKepalaKeluargaNama = syncKepalaKeluargaNama;
+        window.syncKepalaKeluargaNik = syncKepalaKeluargaNik;
+        window.addAnggotaRow = addAnggotaRow;
+        window.editKK = editKK;
+        window.deleteKas = deleteKas;
+        window.requestDeleteKas = requestDeleteKas;
+        window.requestDeleteKK = requestDeleteKK;
+        window.openConfirmModal = openConfirmModal;
+        window.closeConfirmModal = closeConfirmModal;
+        window.exportToJSON = exportToJSON;
+        window.exportToExcelFormatted = exportToExcelFormatted;
+        window.exportCategoryToExcel = exportCategoryToExcel;
+
+        window.onload = function () {
+            const kasTgl = document.getElementById('kas-tgl');
+            if (kasTgl) kasTgl.valueAsDate = new Date();
+
+            switchTab('dashboard');
+            refreshAllUI();
+        };
+    </script>
+</body>
+</html>

@@ -112,7 +112,7 @@
                     </button>
                     <button onclick="switchTab('kas')" id="nav-kas" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
                         <i class="fa-solid fa-wallet"></i>
-                        <span>Kas</span>
+                        <span>Kas & Kegiatan</span>
                     </button>
                     <button onclick="switchTab('rekap')" id="nav-rekap" class="px-3 py-2 rounded-lg transition-all flex items-center space-x-2 hover:bg-white/10 text-emerald-50">
                         <i class="fa-solid fa-file-invoice"></i>
@@ -859,9 +859,8 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dasawisma-app-v2';
+        const appId = 'dasawisma-app-v3';
         
-        // Firebase Cloud Configuration for dasawismaku
         const firebaseConfig = {
             apiKey: "AIzaSyBA0tYm96cBsgwlq2L4cEQzeYNbjjTUgig",
             authDomain: "dasawismaku.firebaseapp.com",
@@ -1087,13 +1086,13 @@
         }
 
         function startRealtimeSync() {
-            if (!userId || !db) {
+            if (!db) {
                 fallbackToLocalStorage();
                 return;
             }
 
             try {
-                const kkCol = collection(db, 'artifacts', appId, 'public', 'data', 'kk_collection');
+                const kkCol = collection(db, 'dasawisma_kk_records');
                 onSnapshot(kkCol, (snapshot) => {
                     dataKK = [];
                     snapshot.forEach(docSnap => {
@@ -1101,16 +1100,16 @@
                     });
                     if (dataKK.length === 0 && initialDummyKK.length > 0) {
                         initialDummyKK.forEach(item => {
-                            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kk_collection', String(item.id)), item);
+                            setDoc(doc(db, 'dasawisma_kk_records', String(item.id)), item);
                         });
                     }
                     refreshAllUI();
                 }, (error) => {
-                    console.warn("Cloud sync error, falling back to LocalStorage:", error);
+                    console.warn("Cloud sync error:", error);
                     fallbackToLocalStorage();
                 });
 
-                const kasCol = collection(db, 'artifacts', appId, 'public', 'data', 'kas_collection');
+                const kasCol = collection(db, 'dasawisma_kas_records');
                 onSnapshot(kasCol, (snapshot) => {
                     dataKas = [];
                     snapshot.forEach(docSnap => {
@@ -1118,7 +1117,7 @@
                     });
                     if (dataKas.length === 0 && initialDummyKas.length > 0) {
                         initialDummyKas.forEach(item => {
-                            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kas_collection', String(item.id)), item);
+                            setDoc(doc(db, 'dasawisma_kas_records', String(item.id)), item);
                         });
                     }
                     refreshAllUI();
@@ -1166,8 +1165,8 @@
         async function requestDeleteKK(id) {
             openConfirmModal("Hapus Data KK", "Apakah Anda yakin ingin menghapus data Kartu Keluarga ini beserta seluruh anggotanya?", async () => {
                 try {
-                    if (useCloud && db) {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kk_collection', String(id)));
+                    if (db) {
+                        await deleteDoc(doc(db, 'dasawisma_kk_records', String(id)));
                     }
                     dataKK = dataKK.filter(k => String(k.id) !== String(id));
                     persistLocalData();
@@ -1183,8 +1182,8 @@
         async function requestDeleteKas(id) {
             openConfirmModal("Hapus Transaksi Kas", "Apakah Anda yakin ingin menghapus transaksi kas ini?", async () => {
                 try {
-                    if (useCloud && db) {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kas_collection', String(id)));
+                    if (db) {
+                        await deleteDoc(doc(db, 'dasawisma_kas_records', String(id)));
                     }
                     dataKas = dataKas.filter(k => String(k.id) !== String(id));
                     persistLocalData();
@@ -1253,14 +1252,14 @@
             const payload = { id: String(kasId), tgl, jenis, jumlah, ket };
 
             try {
-                if (useCloud && db) {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kas_collection', String(kasId)), payload);
+                if (db) {
+                    await setDoc(doc(db, 'dasawisma_kas_records', String(kasId)), payload);
                 }
                 const index = dataKas.findIndex(k => String(k.id) === String(kasId));
                 if (index !== -1) dataKas[index] = payload;
                 else dataKas.unshift(payload);
                 persistLocalData();
-                showToast(document.getElementById('kas-id').value ? 'Transaksi kas berhasil diperbarui!' : 'Transaksi kas berhasil disimpan!');
+                showToast('Transaksi kas berhasil disimpan!');
             } catch (e) {
                 const index = dataKas.findIndex(k => String(k.id) === String(kasId));
                 if (index !== -1) dataKas[index] = payload;
@@ -2020,14 +2019,14 @@
             };
 
             try {
-                if (useCloud && db) {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'kk_collection', String(kkId)), payload);
+                if (db) {
+                    await setDoc(doc(db, 'dasawisma_kk_records', String(kkId)), payload);
                 }
                 const idx = dataKK.findIndex(k => String(k.id) === String(kkId));
                 if (idx !== -1) dataKK[idx] = payload;
                 else dataKK.push(payload);
                 persistLocalData();
-                showToast('Data Kartu Keluarga berhasil disimpan!');
+                showToast('Data Kartu Keluarga berhasil disimpan ke Cloud!');
             } catch (e) {
                 const idx = dataKK.findIndex(k => String(k.id) === String(kkId));
                 if (idx !== -1) dataKK[idx] = payload;
